@@ -1,0 +1,103 @@
+.App {
+}
+h1, h2, h3, h4, h5 {
+  text-align: center;
+}
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+.list-group-item{
+ font-size: 16px;
+ font-weight: 500; 
+}
+
+.circle{
+  border-radius: 350px
+}
+.flex-model {
+  display: flex;
+  justify-content: space-between;
+}
+.col-md-6 {
+  padding: 0px;
+}
+.modal-body {
+  padding: 30px;
+}
+.react-datepicker {
+  font-size: 1.025em;
+}
+.react-datepicker__header {
+  padding-top: 0.8em;
+}
+.react-datepicker-time__header {
+  padding-top: 0.8em;
+  font-size: 1em;
+}
+
+.react-datepicker__month {
+  margin: 0.4em 1em;
+}
+.react-datepicker__day-name, .react-datepicker__day {
+  width: 1.9em;
+  line-height: 1.9em;
+  margin: 0.166em;
+}
+.react-datepicker__time-list {
+  padding-left: 0px;
+}
+.react-datepicker__time-container{
+  width: 252px;
+}
+.fas {
+  font-size: 32px;
+}
+@media (min-width: 767px)
+{
+.react-datepicker--time-only {
+  float: right;
+}
+}
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+  width: 150px;
+}
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box ul.react-datepicker__time-list {
+  height: 179px;
+}
+.react-datepicker__current-month {
+  font-size: 1em;
+}
+.react-datepicker__navigation {
+  top: 1em;
+  line-height: 1.7em;
+  border: 0.45em solid transparent;
+}
+.react-datepicker__navigation--previous {
+  border-right-color: #ccc;
+  left: 1em;
+}
+.react-datepicker__navigation--next {
+  border-left-color: #ccc;
+  right: 1em;
+}
+
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
