@@ -20,7 +20,8 @@ class App extends Component {
       selectedPlace: 'indore',
       selectedPage: 1,
       selectedTab: 1,
-      show: false
+      bookshow: false,
+      conshow:false
     };
   }
 
@@ -44,14 +45,20 @@ class App extends Component {
       selectedTab: tab
     });
   }
-  handleClose = () => {
-    this.setState({ show: false });
+  handleBookClose = () => {
+    this.setState({ bookshow: false });
+  }
+  handleConClose = () => {
+    this.setState({ conshow: false });
   }
 
-  handleShow = () => {
-    this.setState({ show: true });
+  handleBookShow = () => {
+    this.setState({ bookshow: true });
   }
-
+  handleConShow = () => {
+    this.setState({ conshow: true });
+  }
+  
   render() {
     const { date, format, mode, inputFormat } = this.state;
 
@@ -73,7 +80,10 @@ class App extends Component {
             </Nav>
             <Nav pullRight>
               <NavItem eventKey={2} href="#">
-                <Button bsStyle="primary" onClick={this.handleShow}>Book Appointment</Button>
+                <Button bsStyle="primary" onClick={this.handleBookShow}>Book Appointment</Button>
+              </NavItem>
+              <NavItem eventKey={2} href="#">
+                <Button bsStyle="primary" onClick={this.handleConShow}>Contact Us</Button>
               </NavItem>
 
             </Nav>
@@ -185,7 +195,8 @@ class App extends Component {
               </Row>
             </Grid>
           </div>}
-        <Modal show={this.state.show} onHide={this.handleClose}>
+          
+        <Modal show={this.state.bookshow} onHide={this.handleBookClose}>
           <Modal.Header closeButton>
             <Modal.Title>Book Appointment</Modal.Title>
           </Modal.Header>
@@ -197,14 +208,11 @@ class App extends Component {
 
                     <Panel>
                       <Panel.Heading>
-                        <Panel.Title componentClass="h3">Select Location</Panel.Title>
+                        <Panel.Title componentClass="h3">Location</Panel.Title>
                       </Panel.Heading>
                       <Panel.Body>
-                        <ListGroup>
-                          <ListGroupItem onClick={() => this.handleSelect('indore')} active={this.state.selectedPlace === 'indore' ? true : false}>Indore</ListGroupItem>
-                          <ListGroupItem onClick={() => this.handleSelect('ujjain')} active={this.state.selectedPlace === 'ujjain' ? true : false}>Ujjain</ListGroupItem>
-                          <ListGroupItem onClick={() => this.handleSelect('ratlam')} active={this.state.selectedPlace === 'ratlam' ? true : false}>Ratlam</ListGroupItem>
-                          <ListGroupItem onClick={() => this.handleSelect('mandsaur')} active={this.state.selectedPlace === 'mandsaur' ? true : false}>Mandsaur</ListGroupItem>
+                       <ListGroup>
+                          <ListGroupItem onClick={() => this.handleSelect('indore')} active={this.state.selectedPlace === 'indore' ? true : false}>Bombay Hospital Indore</ListGroupItem>
                         </ListGroup>
                       </Panel.Body>
                     </Panel>
@@ -254,15 +262,32 @@ class App extends Component {
           </Modal.Body>
           <Modal.Footer>
             <div className="flex-model">
-              <Button bsStyle="danger" onClick={this.handleClose}>Close</Button>
+              <Button bsStyle="danger" onClick={this.handleBookClose}>Close</Button>
               {this.state.selectedPage === 2 && <Button bsStyle="primary" onClick={() => this.handlePageChange(1)}>Back</Button>}
               {this.state.selectedPage === 1 && <Button bsStyle="primary" onClick={() => this.handlePageChange(2)}>Next</Button>}
             </div>
           </Modal.Footer>
         </Modal>
-
-
-      </div>
+        <Modal show={this.state.conshow} onHide={this.handleConClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Contact Us</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+          {this.state.selectedPage === 1 &&
+          <div>
+          <h4>Dr Alok Mandliya</h4>
+          <h5>Bombay Hospital Indore</h5>
+          <h6>dralokdm@gmail.com</h6>
+          <h6>9754086504</h6>
+          </div>
+          }
+            </Modal.Body>
+          <Modal.Footer>
+            <Button bsStyle="danger" onClick={this.handleConClose}>Close</Button>
+          </Modal.Footer>
+        </Modal>
+          </div>
+          
     );
   }
 }
