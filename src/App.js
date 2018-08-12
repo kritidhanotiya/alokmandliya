@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
+import request from 'request';
 import DatePicker from 'react-datepicker';
 import moment from 'moment';
 import {
-  Nav, Navbar, NavItem, MenuItem, NavDropdown, Col, Image, Row, Grid,
-  Thumbnail, Button, Modal, OverlayTrigger, Popover, Tooltip, ListGroup, ListGroupItem, Form, FormControl, FormGroup, Panel, PanelBody
+  Nav, Navbar, NavItem, Col, Image, Row, Grid, Button, Modal, ListGroup, ListGroupItem, Form, FormControl, FormGroup, Panel
 } from 'react-bootstrap';
-import MaskedFormControl from 'react-bootstrap-maskedinput'
+import MaskedFormControl from 'react-bootstrap-maskedinput';
 import 'react-datepicker/dist/react-datepicker.css';
 import logo from './alok_mandliya.jpg';
 import './App.css';
@@ -16,18 +16,42 @@ class App extends Component {
     super(props, context);
 
     this.state = {
-      startDate: moment(),
       selectedPlace: 'indore',
       selectedPage: 1,
       selectedTab: 1,
-      bookshow: false,
-      conshow:false
+      selectedName: '',
+      selectedEmail: '',
+      selectedPhoneNumber: '',
+      selectedDate: moment(),
+      selectedTime: moment(),
+      bookAppointmentshow: false,
+      contactshow: false
     };
   }
 
-  handleChange = (date) => {
+  handleDateChange = (date) => {
     this.setState({
-      startDate: date
+      selectedDate: date
+    });
+  }
+  handleTimeChange = (time) => {
+    this.setState({
+      selectedTime: time
+    });
+  }
+  handleNameChange = (e) => {
+    this.setState({
+      selectedName: e.target.value
+    });
+  }
+  handleEmailChange = (e) => {
+    this.setState({
+      selectedEmail: e.target.value
+    });
+  }
+  handlePhoneNumberChange = (e) => {
+    this.setState({
+      selectedPhoneNumber: e.target.value
     });
   }
   handleSelect = (place) => {
@@ -45,23 +69,40 @@ class App extends Component {
       selectedTab: tab
     });
   }
-  handleBookClose = () => {
-    this.setState({ bookshow: false });
+  handleBookAppointmentClose = () => {
+    this.setState({ bookAppointmentshow: false });
   }
-  handleConClose = () => {
-    this.setState({ conshow: false });
+  handleContactClose = () => {
+    this.setState({ contactshow: false });
   }
 
-  handleBookShow = () => {
-    this.setState({ bookshow: true });
+  handleBookAppointmentShow = () => {
+    this.setState({ bookAppointmentshow: true });
   }
-  handleConShow = () => {
-    this.setState({ conshow: true });
+  handleContactShow = () => {
+    this.setState({ contactshow: true });
   }
-  
+  handleConfirmAppointment = () => {
+    var post_data = JSON.stringify({
+      name: this.state.selectedName,
+      email: this.state.selectedEmail,
+      mobile: this.state.selectedPhoneNumber,
+      date: this.state.selectedDate,
+      time: this.state.selectedTime
+    });
+
+    request.post({
+      headers: {  'Content-Type': 'application/json' },
+      url: 'http://localhost:8000/api/appointments?access_token=abc123',
+      body: post_data
+    }, function (error, response, body) {
+      console.log(body);
+    });
+
+
+  }
+
   render() {
-    const { date, format, mode, inputFormat } = this.state;
-
 
     return (
       <div className="App">
@@ -71,19 +112,19 @@ class App extends Component {
           </Navbar.Header>
           <Navbar.Collapse>
             <Nav>
-            <NavItem eventKey={1} href="#">
-            <Button bsStyle="success" onClick={() => this.handleTabChange(1)}>Home</Button>
+              <NavItem eventKey={1} href="#" onClick={() => this.handleTabChange(1)} >
+                <i className="fa fa-hospital"></i> Home
             </NavItem>
-              <NavItem eventKey={2} href="#">
-                <Button bsStyle="success" onClick={() => this.handleTabChange(2)}>About Me</Button>
+              <NavItem eventKey={2} href="#" onClick={() => this.handleTabChange(2)}>
+                <i className="fa fa-user-md"></i> About Me
               </NavItem>
             </Nav>
             <Nav pullRight>
-              <NavItem eventKey={2} href="#">
-                <Button bsStyle="primary" onClick={this.handleBookShow}>Book Appointment</Button>
+              <NavItem eventKey={2} href="#" onClick={this.handleBookAppointmentShow}>
+                <i className="far fa-calendar-check"></i> Book Appointment
               </NavItem>
-              <NavItem eventKey={2} href="#">
-                <Button bsStyle="primary" onClick={this.handleConShow}>Contact Us</Button>
+              <NavItem eventKey={2} href="#" onClick={this.handleContactShow}>
+                <i className="fa fa-envelope fa-fw"></i> Contact Us
               </NavItem>
 
             </Nav>
@@ -104,7 +145,7 @@ class App extends Component {
                   <table align="center">
                     <tr>
                       <td>
-                        <i class="fas fa-large fa-user-md"></i>
+                        <i className="fa fa-user-md"></i>
                       </td>
                       <td>
                         &nbsp; MBBS from MGM Medical College Indore MP, 2001-2007.
@@ -117,7 +158,7 @@ class App extends Component {
                   <table align="center">
                     <tr>
                       <td>
-                        <i class="fas fa-large fa-capsules"></i></td>
+                        <i class="fa fa-capsules"></i></td>
                       <td>
                         &nbsp;MD (Medicine) from Seth GS Medical college and KEM Hospital Mumbai 2007-2010
                          </td>
@@ -129,7 +170,7 @@ class App extends Component {
                   <table align="center">
                     <tr>
                       <td>
-                        <i class="fas fa-large fa-dna"></i>
+                        <i class="fa fa-dna"></i>
                       </td>
                       <td>
                         &nbsp;DM Neurology from Sri Chitra Tirunal Institute for Medical Sciences and Technology (SCTIMST), Trivandrum 2011-2013
@@ -195,8 +236,8 @@ class App extends Component {
               </Row>
             </Grid>
           </div>}
-          
-        <Modal show={this.state.bookshow} onHide={this.handleBookClose}>
+
+        <Modal show={this.state.bookAppointmentshow} onHide={this.handleBookAppointmentClose}>
           <Modal.Header closeButton>
             <Modal.Title>Book Appointment</Modal.Title>
           </Modal.Header>
@@ -211,7 +252,7 @@ class App extends Component {
                         <Panel.Title componentClass="h3">Location</Panel.Title>
                       </Panel.Heading>
                       <Panel.Body>
-                       <ListGroup>
+                        <ListGroup>
                           <ListGroupItem onClick={() => this.handleSelect('indore')} active={this.state.selectedPlace === 'indore' ? true : false}>Bombay Hospital Indore</ListGroupItem>
                         </ListGroup>
                       </Panel.Body>
@@ -222,17 +263,24 @@ class App extends Component {
                 <Row>
                   <Col md={6}>
                     <DatePicker
-                      selected={this.state.startDate}
-                      onChange={this.handleChange}
+                      selected={this.state.selectedDate}
+                      onChange={this.handleDateChange}
+                      minDate={moment()}
+                      maxDate={moment().add(1, "month")}
+                      filterDate={this.isWeekday}
                       inline
                     />
                   </Col>
                   <Col md={6}>
+
                     <DatePicker
-                      selected={this.state.startDate}
-                      onChange={this.handleChange}
+                      selected={this.state.selectedTime}
+                      onChange={this.handleTimeChange}
                       showTimeSelect
                       showTimeSelectOnly
+                      minTime={moment().hours(10).minutes(0)}
+                      maxTime={moment().hours(18).minutes(0)}
+
                       timeIntervals={15}
                       dateFormat="LT"
                       timeCaption="Time"
@@ -247,12 +295,12 @@ class App extends Component {
               <div>
                 <Form horizontal>
                   <FormGroup controlId="formHorizontalName">
-                    <FormControl type="text" placeholder="Full Name" /></FormGroup>
-                  <FormGroup><FormControl type="email" placeholder="Email Id" /></FormGroup>
-                  <FormGroup><MaskedFormControl type='text' name='phoneNumber' placeholder="Phone number" mask='1111111111' />
+                    <FormControl type="text" name='name' placeholder="Full Name" onChange={(e) => this.handleNameChange(e)} /></FormGroup>
+                  <FormGroup><FormControl type="email" name='email' placeholder="Email Id" onChange={(e) => this.handleEmailChange(e)} /></FormGroup>
+                  <FormGroup><MaskedFormControl type='text' name='phoneNumber' placeholder="Phone number" mask='1111111111' onChange={(e) => this.handlePhoneNumberChange(e)} />
                   </FormGroup>
                   <FormGroup>
-                    <Button bsStyle="success">Confirm Appointment</Button>
+                    <Button bsStyle="success" onClick={this.handleConfirmAppointment}>Confirm Appointment</Button>
                   </FormGroup>
                 </Form>
               </div>
@@ -262,32 +310,32 @@ class App extends Component {
           </Modal.Body>
           <Modal.Footer>
             <div className="flex-model">
-              <Button bsStyle="danger" onClick={this.handleBookClose}>Close</Button>
-              {this.state.selectedPage === 2 && <Button bsStyle="primary" onClick={() => this.handlePageChange(1)}>Back</Button>}
-              {this.state.selectedPage === 1 && <Button bsStyle="primary" onClick={() => this.handlePageChange(2)}>Next</Button>}
+              <Button bsStyle="danger" onClick={this.handleBookAppointmentClose}>Close</Button>
+              {this.state.selectedPage === 2 && <Button bsStyle="primary" onClick={() => this.handlePageChange(1)}><i class="fa fa-arrow-left"></i> Back</Button>}
+              {this.state.selectedPage === 1 && <Button bsStyle="primary" onClick={() => this.handlePageChange(2)}>Next <i class="fa fa-arrow-right"></i></Button>}
             </div>
           </Modal.Footer>
         </Modal>
-        <Modal show={this.state.conshow} onHide={this.handleConClose}>
+        <Modal show={this.state.contactshow} onHide={this.handleContactClose}>
           <Modal.Header closeButton>
             <Modal.Title>Contact Us</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-          {this.state.selectedPage === 1 &&
-          <div>
-          <h4>Dr Alok Mandliya</h4>
-          <h5>Bombay Hospital Indore</h5>
-          <h6>dralokdm@gmail.com</h6>
-          <h6>9754086504</h6>
-          </div>
-          }
-            </Modal.Body>
+            {this.state.selectedPage === 1 &&
+              <div>
+                <h4>Dr Alok Mandliya</h4>
+                <h5>Bombay Hospital Indore</h5>
+                <h6>dralokdm@gmail.com</h6>
+                <h6>9754086504</h6>
+              </div>
+            }
+          </Modal.Body>
           <Modal.Footer>
-            <Button bsStyle="danger" onClick={this.handleConClose}>Close</Button>
+            <Button bsStyle="danger" onClick={this.handleContactClose}>Close</Button>
           </Modal.Footer>
         </Modal>
-          </div>
-          
+      </div>
+
     );
   }
 }
