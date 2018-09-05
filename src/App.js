@@ -8,14 +8,14 @@ import {
 import MaskedFormControl from 'react-bootstrap-maskedinput';
 import 'react-datepicker/dist/react-datepicker.css';
 import FacebookLogin from 'react-facebook-login';
-import logo from './alok_mandliya.jpg';
 import './App.css';
+import { About } from './About';
+import { Home } from './Home';
 
 
 class App extends Component {
   constructor(props, context) {
     super(props, context);
-
     this.state = {
       selectedPlace: 'indore',
       selectedPage: 1,
@@ -23,19 +23,41 @@ class App extends Component {
       selectedName: '',
       selectedEmail: '',
       selectedPhoneNumber: '',
-      selectedDate: moment(),
+      selectedDate: (moment().format("dd")=="Sunday") ? moment().add('days', 1): moment(),
       selectedTime: moment(),
       bookAppointmentshow: false,
       contactshow: false,
       loggedIn: true,
+      bookedAppointments: [],
+      bookedSlots: [],
       user: JSON.parse('{"name":"Nitesh Gupta","email":"niteshgusty@rediffmail.com","picture":{"data":{"height":50,"is_silhouette":false,"url":"https://platform-lookaside.fbsbx.com/platform/profilepic/?asid=2065981463454429&height=50&width=50&ext=1537250854&hash=AeRNTX-L0rZFLfge","width":50}},"id":"2065981463454429","accessToken":"EAAO4owD1rXQBAIQpYAhzOZCt7hZAGXkjzxfEhIaZA1if1tlsKt4n4nb3BzizFjY6ixZBg1HouC1rTAxpKeuc6CNcebWHC9S9vJ3ZA5g9QLr1TAeWp2JMRH65RtCI125P5F1Pu71CR8EL70isjZC0miI28Q42Qo2Xukaqe4AchmWZCsOXSRkxiSsGW4vxEHy1tVzWJT2WD2bSgZDZD","userID":"2065981463454429","expiresIn":6747,"signedRequest":"lbddNy-dy-fQ-XDSB-cj0kRc0DnmJKLmcVwYKcI_4uo.eyJhbGdvcml0aG0iOiJITUFDLVNIQTI1NiIsImNvZGUiOiJBUUJPV2JfeTNFMV9ENW92TjZRY29EWVZtcDkzR0ltc0dtdWNfa2l0d1pyZzVkbVFkMWtfaVpPNEw4YmVPYzl2VGxud0g1ZGktVHFEY1BabW5CV25RQVo3STNJRS1LTmt5a1Q4d0p5UFRCcEFWWkIxVWZ3SC1Kb0hUd3R3MHVxT0RNQi1HRlJka3gzel9wamJOQ05xMFdrYWR3eVFMbG1ySWJNV001SC14UGY5ajZKSTk1akEtbWVzZ0VDQ2ExTjdSOVQ2cFRJbzBpWlNWYVo1ajNQX1V2TEN1V3lYRXBoNExEdkFhUWZuRzBoUGVFa3Q1QUJTVUdESW1kQmFWOUZXR3NCSG5KcGJqYjBLSklZUk5GTkE4SWRscDd1WWtGbmZqUzV3RzlvMktEbGp2WEx0Q25aUFUyTWlFWVZmMFQ2UzlKZ3hMcHhIWDdMWXJybkxLd1k0VDRtTTRHX3ZHWUdLaFhHYWpjNjd5d1B5MlEiLCJpc3N1ZWRfYXQiOjE1MzQ2NTg4NTMsInVzZXJfaWQiOiIyMDY1OTgxNDYzNDU0NDI5In0","reauthorize_required_in":7775142}'),
       userShow: false
     };
   }
 
+
+  componentWillMount() {
+    request
+      .get('https://apiserver-211007.appspot.com/api/appointments?access_token=11993245667', null,
+        (err, res, body) => {
+          if (res.statusCode === 200) {
+            const appointments = JSON.parse(body);
+            const date = this.state.selectedDate;
+            const bookedAppointments = appointments.map(appointment => { return moment(appointment.date + 'T' + appointment.time) });
+            this.setState({ bookedAppointments,
+            bookedSlots: bookedAppointments.filter(appointment => { return moment(appointment).format('YYYY-MM-DD') === date.format('YYYY-MM-DD') } )
+            .map(appointment => { return moment(appointment) }) })
+          }
+        }
+      )
+  }
+
   handleDateChange = (date) => {
+    const bookedAppointments = JSON.parse(JSON.stringify(this.state.bookedAppointments));
     this.setState({
-      selectedDate: date
+      selectedDate: date,
+      bookedSlots: bookedAppointments.filter(appointment => { return moment(appointment).format('YYYY-MM-DD') === date.format('YYYY-MM-DD') } )
+      .map(appointment => { return moment(appointment) })
     });
   }
   handleTimeChange = (time) => {
@@ -122,8 +144,8 @@ class App extends Component {
 
   responseFacebook = (response) => {
     console.log(response);
-    if(response.name) {
-      this.setState({loggedIn: true, user: response});
+    if (response.name) {
+      this.setState({ loggedIn: true, user: response });
     }
   }
   componentClicked = () => {
@@ -155,7 +177,7 @@ class App extends Component {
                 <i className="fa fa-envelope fa-fw"></i> Contact Us
               </NavItem>
               <NavItem href="#">
-               {!this.state.loggedIn && <FacebookLogin
+                {!this.state.loggedIn && <FacebookLogin
                   appId="1047435165412724"
                   autoLoad={true}
                   cssClass="facebook-button btn btn-danger"
@@ -164,124 +186,24 @@ class App extends Component {
                   redirectUri="https://alokmandliya.com"
                   onClick={this.componentClicked}
                   callback={this.responseFacebook} />
-               }
-               {this.state.loggedIn &&
-                <NavItem href="#" onClick={this.handleUserShow}>
-                <span className="user-profile">
-                <img src={this.state.user.picture.data.url} /> {this.state.user.name}
-                </span>
-              </NavItem>
-               }
+                }
+                {this.state.loggedIn &&
+                  <NavItem href="#" onClick={this.handleUserShow}>
+                    <span className="user-profile">
+                      <img src={this.state.user.picture.data.url} /> {this.state.user.name}
+                    </span>
+                  </NavItem>
+                }
               </NavItem>
             </Nav>
           </Navbar.Collapse>
         </Navbar>
 
-        {this.state.selectedTab === 1 && <div id="home">
-          <Grid>
-            <Row>
-              <Col xs={12} md={12}>
-                <Image src={logo} responsive className="circle center-block" />
-                <h2>Dr Alok Mandliya</h2>
-                <h3>Neurologist</h3>
-                <br />
-              </Col>
-              <Col xs={12} md={12}>
-                <h4>
-                  <table align="center">
-                    <tr>
-                      <td>
-                        <i className="fa fa-user-md"></i>
-                      </td>
-                      <td>
-                        &nbsp; MBBS from MGM Medical College Indore MP, 2001-2007.
-                    </td>
-                    </tr>
-                  </table>
-                </h4>
-
-                <h4>
-                  <table align="center">
-                    <tr>
-                      <td>
-                        <i className="fa fa-capsules"></i></td>
-                      <td>
-                        &nbsp;MD (Medicine) from Seth GS Medical college and KEM Hospital Mumbai 2007-2010
-                         </td>
-                    </tr>
-                  </table>
-                </h4>
-
-                <h4>
-                  <table align="center">
-                    <tr>
-                      <td>
-                        <i class="fa fa-dna"></i>
-                      </td>
-                      <td>
-                        &nbsp;DM Neurology from Sri Chitra Tirunal Institute for Medical Sciences and Technology (SCTIMST), Trivandrum 2011-2013
-                       </td>
-                    </tr>
-                  </table>
-                </h4>
-              </Col>
-            </Row>
-          </Grid>
-        </div>}
+        {this.state.selectedTab === 1 &&
+          <Home />}
         {this.state.selectedTab === 2 &&
-          <div id="about">
-            <Grid>
-              <Row>
-                <Col xs={12} md={12}>
-                  <h2>Credential</h2>
-                  <ListGroup>
-                    <ListGroupItem>MBBS from MGM Medical College Indore MP, 2001-2007.</ListGroupItem>
-                    <ListGroupItem>MD (Medicine) from Seth GS Medical college and KEM Hospital Mumbai 2007-2010</ListGroupItem>
-                    <ListGroupItem>DM Neurology from Sri Chitra Tirunal Institute for Medical Sciences and Technology (SCTIMST), Trivandrum 2011-2013</ListGroupItem>
-                  </ListGroup>
-                  <h2>Background</h2>
-                  <p>Dr Alok Mandliya obtained his medical graduation from MGM Medical college Indore.
-           He wenton to successfully complete his post-graduate training in Medicine obtaining
-           the Doctor of Medicine from prestigious Seth GS Medical college and KEM Hospital Mumbai with gold medal.
-            He was awarded by prestigiousJaykar Award in Mumbai in 2010. He did his DM from world renowned Sri
-             Chitra Tirunal Institute for Medical Sciences and Technology (SCTIMST), Trivandrum with gold medal.
-              He was trained under the guidance of Dr D R Karnad and Dr Prof.K Radhakrishnan. In 2013 he was
-              rewarded as best young neurologist in India. Following his return, he joined Bombay Hospital Indore
-              as Neurologist where he is serving with full dedication. In 2014 he was single neurologist from India
-               who was invited by Japanese Society of Electrophysiology in Super EMG workshop. He is a life member
-                of American Academy of Neurology, Indian Academy of Neurology.
-            He is also an active speaker in Neuro Club Indore. His basic area of interest is stroke,
-             critical care neurology and neuro infectious diseases.</p>
-                  <h2>Expertise</h2>
-                  <ListGroup>
-                    <ListGroupItem> Critical Neurological Illness, Stroke, Epilepsy, Movement Disorders, Botox Therapy, Headache and Neuromuscular Diseases</ListGroupItem>
-                  </ListGroup>
-                  <h2>Achievements and Accolades</h2>
-                  <ListGroup>
-                    <ListGroupItem>1. Invited in Tokyo SuperEMG workshop 2014, single young neurophysician from India
-                    </ListGroupItem>
-                    <ListGroupItem>2. Torrent Young Scholar Award 2013 : Considered as best budding brain in field of Neurology 2013 in India </ListGroupItem>
-                    <ListGroupItem>3. Gold Medal in Neurology 2013 </ListGroupItem>
-                    <ListGroupItem>4. Jaykar Award 2010 : Best Postgraduate in Medicine in Mumbai </ListGroupItem>
-                    <ListGroupItem>5. Gold Medal in Medicine 2010 (Post Graduation)</ListGroupItem>
-                    <ListGroupItem>6. Gold Medal in Paediatrics 2007</ListGroupItem>
-                    <ListGroupItem>7. Gold Medal in Pathology 2004</ListGroupItem>
-
-                  </ListGroup>
-                  <h2>Paper Published</h2>
-                  <ListGroup>
-                    <ListGroupItem>1. Sinus arrest: Complicating acute posterior cerebral artery stroke : Alok Mandliya, Narayanan Namboodiri,
-                  Sapna Erat Sreedharan, Sylaja P. N., Neurology India, Sep-Oct 2011, Vol 59,Issue 5 : 772-773
-                  </ListGroupItem>
-                    <ListGroupItem>2. Successful mechanical thrombectomy of acute middle cerebral artery occlusion due to vegetation from infective endocarditis :
-                  Sajith Sukumaran, ER Jayadevan, Alok Mandliya, Sapna Erat Sreedharan,
-                  S.Harikrishnan, Neelima Radhakrishnan, PN Sylaja : Neurology India 2012, Volume : 60,Issue : 2, Page : 239-240
-                </ListGroupItem>
-                  </ListGroup>
-                </Col>
-              </Row>
-            </Grid>
-          </div>}
+          <About />
+        }
 
         <Modal show={this.state.bookAppointmentshow} onHide={this.handleBookAppointmentClose}>
           <Modal.Header closeButton>
@@ -314,6 +236,7 @@ class App extends Component {
                       minDate={moment()}
                       maxDate={moment().add(1, "month")}
                       filterDate={this.isWeekday}
+
                       inline
                     />
                   </Col>
@@ -326,7 +249,7 @@ class App extends Component {
                       showTimeSelectOnly
                       minTime={moment().hours(10).minutes(0)}
                       maxTime={moment().hours(18).minutes(0)}
-
+                      excludeTimes={this.state.bookedSlots}
                       timeIntervals={15}
                       dateFormat="LT"
                       timeCaption="Time"
